@@ -1,0 +1,10 @@
+﻿{
+	"Id": "SpellMetamagicOptionsFix",
+	"DisplayName": "Spell Metamagic Options Fix",
+	"Author": "Ginger",
+	"Version": "1.0.0",
+	"ManagerVersion": "0.23.3",
+	"Requirements": [],
+	"AssemblyName": "SpellMetamagicOptionsFix.dll",
+	"EntryMethod": "SpellMetamagicOptionsFix.Main.Load"
+}
