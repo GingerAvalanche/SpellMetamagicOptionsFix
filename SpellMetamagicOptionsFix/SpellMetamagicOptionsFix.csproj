@@ -95,8 +95,7 @@
   <ItemGroup>
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Helpers.cs" />
-    <Compile Include="SpellLists.cs" />
-    <Compile Include="Spells.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

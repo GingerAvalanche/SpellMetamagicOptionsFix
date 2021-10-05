@@ -1,50 +1,54 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Kingmaker.Designers.EventConditionActionSystem.Actions;
-using Kingmaker.ElementsSystem;
+﻿using System.Reflection;
+using HarmonyLib;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
-using Kingmaker.UnitLogic.Abilities.Components;
-using Kingmaker.UnitLogic.Mechanics.Actions;
+using static SpellMetamagicOptionsFix.Helpers;
 
 namespace SpellMetamagicOptionsFix
 {
 	public static class ExtensionMethods
 	{
+		public static Helpers.FlatAbility FlattenAbility(this BlueprintAbility ability)
+        {
+            flatAbility = new();
+			flatAbility.Add(ability);
 
-		public static IEnumerable<GameAction> FlattenAllActions(this BlueprintAbility Ability)
-		{
-			return Ability.GetComponents<AbilityExecuteActionOnCast>().SelectMany((AbilityExecuteActionOnCast a) => a.FlattenAllActions()).Concat(Ability.GetComponents<AbilityEffectRunAction>().SelectMany((AbilityEffectRunAction a) => a.FlattenAllActions()));
-		}
-
-		public static IEnumerable<GameAction> FlattenAllActions(this AbilityExecuteActionOnCast Action)
-		{
-			return Action.Actions.Actions.FlattenAllActions();
-		}
-
-		public static IEnumerable<GameAction> FlattenAllActions(this AbilityEffectRunAction Action)
-		{
-			return Action.Actions.Actions.FlattenAllActions();
-		}
-
-		public static IEnumerable<GameAction> FlattenAllActions(this IEnumerable<GameAction> Actions)
-		{
-			List<GameAction> NewActions = new List<GameAction>();
-			NewActions.AddRange(Actions.OfType<ContextActionOnRandomTargetsAround>().SelectMany((ContextActionOnRandomTargetsAround a) => a.Actions.Actions));
-			NewActions.AddRange(Actions.OfType<ContextActionConditionalSaved>().SelectMany((ContextActionConditionalSaved a) => a.Failed.Actions));
-			NewActions.AddRange(Actions.OfType<ContextActionConditionalSaved>().SelectMany((ContextActionConditionalSaved a) => a.Succeed.Actions));
-			NewActions.AddRange(Actions.OfType<Conditional>().SelectMany((Conditional a) => a.IfFalse.Actions));
-			NewActions.AddRange(Actions.OfType<Conditional>().SelectMany((Conditional a) => a.IfTrue.Actions));
-			bool flag = NewActions.Count > 0;
-			IEnumerable<GameAction> result;
-			if (flag)
+			foreach (FieldInfo field in ability.GetType().GetFields(AccessTools.all))
 			{
-				result = Actions.Concat(NewActions.FlattenAllActions());
+				ParseObject(field.GetValue(ability));
+				if (flatAbility.AllMetamagicSet) { break; }
 			}
-			else
+
+			foreach (PropertyInfo property in ability.GetType().GetProperties(AccessTools.all))
 			{
-				result = Actions;
+				ParseObject(property.GetValue(ability));
+				if (flatAbility.AllMetamagicSet) { break; }
 			}
-			return result;
+
+			return flatAbility;
+        }
+		public static void Flatten<T>(this T o)
+        {
+			if (o is null) { return; }
+			if (!flatAbility.Add(o))
+            {
+				return;
+			}
+
+			foreach (FieldInfo field in o.GetType().GetFields(AccessTools.all))
+			{
+				ParseObject(field.GetValue(o));
+				if (flatAbility.AllMetamagicSet) { return; }
+			}
+
+			foreach (PropertyInfo property in o.GetType().GetProperties(AccessTools.all))
+			{
+				try
+				{
+					ParseObject(property.GetValue(o));
+				}
+				catch (TargetInvocationException) { }
+				if (flatAbility.AllMetamagicSet) { return; }
+			}
 		}
 	}
 }
