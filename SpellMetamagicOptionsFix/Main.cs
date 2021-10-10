@@ -2,9 +2,6 @@
 using HarmonyLib;
 using System.Reflection;
 using Kingmaker.Blueprints.JsonSystem;
-using Kingmaker.UnitLogic.Abilities;
-using Kingmaker.UnitLogic.Abilities.Blueprints;
-using System.Linq;
 
 namespace SpellMetamagicOptionsFix
 {
@@ -39,21 +36,9 @@ namespace SpellMetamagicOptionsFix
                 if (loaded) return;
                 loaded = true;
 
-                Helpers.Load();
+                Fixes.SpellFixes.FixBestowGraceOfTheChampion();
 
-                BlueprintAbility[] spells = (from b in Helpers.GetBlueprints<BlueprintAbility>() where b.IsSpell select b).ToArray<BlueprintAbility>();
-
-                foreach (BlueprintAbility spell in spells)
-                {
-                    if (spell == null)
-                    {
-                        continue;
-                    }
-                    Helpers.FlatAbility ability = spell.FlattenAbility();
-                    Metamagic handled = (Metamagic)559; // Empower, Maximize, Quicken, Extend, Reach, Bolstered
-                    spell.AvailableMetamagic &= ~handled;
-                    spell.AvailableMetamagic |= ability.metamagic;
-                }
+                Fixes.MetamagicFixes.FixMetamagic();
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Spells;
-using Kingmaker.Blueprints.JsonSystem;
 using Kingmaker.ElementsSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities;
@@ -18,20 +17,7 @@ namespace SpellMetamagicOptionsFix
     public static class Helpers
     {
         public static FlatAbility flatAbility;
-        public static List<BlueprintCharacterClassReference> classes;
-        public static SimpleBlueprint[] LocalBlueprintLib;
         private static readonly Type[] ignoreTypes = new Type[] { typeof(SpellListComponent), typeof(SpellComponent), typeof(AddSpellImmunity) };
-        internal static void Load()
-        {
-            Helpers.classes = (from c in ResourcesLibrary.GetRoot().Progression.m_CharacterClasses where c.Guid != "f5b8c63b141b2f44cbb8c2d7579c34f5" select c).ToList();
-            Dictionary<BlueprintGuid, BlueprintsCache.BlueprintCacheEntry> blueprints = (Dictionary<BlueprintGuid, BlueprintsCache.BlueprintCacheEntry>)AccessTools.Field(typeof(BlueprintsCache), "m_LoadedBlueprints").GetValue(ResourcesLibrary.BlueprintsCache);
-            BlueprintGuid[] keys = blueprints.Keys.ToArray();
-            LocalBlueprintLib = (from k in keys select ResourcesLibrary.TryGetBlueprint(k)).ToArray();
-        }
-        public static T[] GetBlueprints<T>() where T : SimpleBlueprint
-        {
-            return LocalBlueprintLib.OfType<T>().Distinct().ToArray();
-        }
         public static void ParseObject(object o)
         {
             if (flatAbility.AllMetamagicSet) { return; }
